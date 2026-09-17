@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == "new" %}写日记{% else %}编辑日记{% endif %} - 个人日记与学习追踪{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-3xl">
+    <div class="mb-5 flex items-center justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-semibold">{% if mode == "new" %}写日记{% else %}编辑日记{% endif %}</h1>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">记录日期、标题、正文和心情标签。</p>
+        </div>
+        <a href="{{ url_for('diaries') }}" class="btn-secondary">
+            <i data-lucide="arrow-left" class="h-4 w-4"></i>
+            返回
+        </a>
+    </div>
+
+    <form method="post" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+                <label class="label" for="entry_date">日期</label>
+                <input id="entry_date" name="entry_date" type="date" class="field" value="{{ diary.entry_date.strftime('%Y-%m-%d') }}" required>
+            </div>
+            <div>
+                <label class="label" for="mood_tags">心情标签</label>
+                <input id="mood_tags" name="mood_tags" class="field" value="{{ diary.mood_tags }}" placeholder="#开心 #焦虑">
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <label class="label" for="title">标题</label>
+            <input id="title" name="title" class="field" value="{{ diary.title }}" required maxlength="160">
+        </div>
+
+        <div class="mt-4">
+            <label class="label" for="body">正文</label>
+            <textarea id="body" name="body" rows="12" class="field min-h-72 resize-y" required>{{ diary.body }}</textarea>
+        </div>
+
+        <div class="mt-5 flex flex-wrap justify-end gap-2">
+            <a href="{{ url_for('diaries') }}" class="btn-secondary">取消</a>
+            <button type="submit" class="btn-primary">
+                <i data-lucide="save" class="h-4 w-4"></i>
+                保存
+            </button>
+        </div>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>静态预览 - 个人日记与学习追踪</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        leaf: "#2f6f5e",
+                        paper: "#f7f4ef"
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="stylesheet" href="static/css/app.css">
+</head>
+<body class="min-h-screen bg-paper text-slate-900 antialiased">
+    <header class="border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <a href="#" class="flex items-center gap-3">
+                    <span class="grid h-10 w-10 place-items-center rounded-lg bg-leaf text-white">
+                        <i data-lucide="notebook-pen" class="h-5 w-5"></i>
+                    </span>
+                    <span>
+                        <span class="block text-base font-semibold">日记与学习追踪</span>
+                        <span class="block text-xs text-slate-500">Static Preview</span>
+                    </span>
+                </a>
+                <button class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700" title="主题切换预览">
+                    <i data-lucide="moon" class="h-4 w-4"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <nav class="flex flex-wrap items-center gap-2">
+                    <a class="nav-link" href="#">
+                        <i data-lucide="layout-dashboard" class="h-4 w-4"></i>
+                        看板
+                    </a>
+                    <a class="nav-link" href="#">
+                        <i data-lucide="book-open-text" class="h-4 w-4"></i>
+                        日记
+                    </a>
+                    <a class="nav-link" href="#">
+                        <i data-lucide="graduation-cap" class="h-4 w-4"></i>
+                        学习
+                    </a>
+                    <a class="nav-link primary" href="#">
+                        <i data-lucide="pen-line" class="h-4 w-4"></i>
+                        写日记
+                    </a>
+                    <a class="nav-link primary" href="#">
+                        <i data-lucide="timer-reset" class="h-4 w-4"></i>
+                        记学习
+                    </a>
+                </nav>
+
+                <div class="relative w-full max-w-md lg:w-80">
+                    <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+                    <input class="field pl-9" value="Python" aria-label="搜索预览">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        <section class="space-y-6">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h1 class="text-2xl font-semibold tracking-normal">首页看板</h1>
+                    <p class="mt-1 text-sm text-slate-500">最近 7 天的记录和学习节奏。</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <a href="#" class="btn-primary">
+                        <i data-lucide="pen-line" class="h-4 w-4"></i>
+                        写日记
+                    </a>
+                    <a href="#" class="btn-secondary">
+                        <i data-lucide="timer-reset" class="h-4 w-4"></i>
+                        记学习
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-3">
+                <article class="metric-card">
+                    <div class="metric-icon bg-emerald-100 text-emerald-700">
+                        <i data-lucide="book-marked" class="h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <p class="metric-label">最近 7 天日记</p>
+                        <p class="metric-value">5</p>
+                    </div>
+                </article>
+
+                <article class="metric-card">
+                    <div class="metric-icon bg-amber-100 text-amber-700">
+                        <i data-lucide="clock-3" class="h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <p class="metric-label">累计学习时长</p>
+                        <p class="metric-value">18 小时 40 分钟</p>
+                    </div>
+                </article>
+
+                <article class="metric-card">
+                    <div class="metric-icon bg-sky-100 text-sky-700">
+                        <i data-lucide="badge-check" class="h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <p class="metric-label">已完成学习记录</p>
+                        <p class="metric-value">12</p>
+                    </div>
+                </article>
+            </div>
+
+            <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="mb-4 flex items-center justify-between gap-3">
+                    <h2 class="text-base font-semibold">最近一周学习时长</h2>
+                    <span class="text-xs text-slate-500">分钟</span>
+                </div>
+                <div class="h-72">
+                    <canvas id="previewChart"></canvas>
+                </div>
+            </section>
+
+            <div class="grid gap-6 lg:grid-cols-2">
+                <section>
+                    <div class="mb-3 flex items-center justify-between">
+                        <h2 class="text-base font-semibold">最近日记</h2>
+                        <a class="text-sm font-medium text-leaf hover:underline" href="#">查看全部</a>
+                    </div>
+                    <div class="space-y-3">
+                        <article class="list-card">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-sm text-slate-500">2026-09-17</p>
+                                    <h3 class="mt-1 font-semibold">把 Flask 项目跑通</h3>
+                                </div>
+                                <a href="#" class="icon-button" title="编辑日记">
+                                    <i data-lucide="pencil" class="h-4 w-4"></i>
+                                </a>
+                            </div>
+                            <p class="mt-3 line-clamp-3 whitespace-pre-line text-sm text-slate-600">今天把日记和学习追踪的主流程理清楚了。界面不需要很复杂，但要足够顺手，能每天打开就记录。</p>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                <span class="tag">#专注</span>
+                                <span class="tag">#开心</span>
+                            </div>
+                        </article>
+
+                        <article class="list-card">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-sm text-slate-500">2026-09-16</p>
+                                    <h3 class="mt-1 font-semibold">整理英语复盘</h3>
+                                </div>
+                                <a href="#" class="icon-button" title="编辑日记">
+                                    <i data-lucide="pencil" class="h-4 w-4"></i>
+                                </a>
+                            </div>
+                            <p class="mt-3 line-clamp-3 whitespace-pre-line text-sm text-slate-600">背单词比想象中慢，不过复习曲线开始稳定了。明天继续拆小块。</p>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                <span class="tag">#平静</span>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="mb-3 flex items-center justify-between">
+                        <h2 class="text-base font-semibold">最近学习</h2>
+                        <a class="text-sm font-medium text-leaf hover:underline" href="#">查看全部</a>
+                    </div>
+                    <div class="space-y-3">
+                        <article class="list-card">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-sm text-slate-500">2026-09-17</p>
+                                    <h3 class="mt-1 font-semibold">Python</h3>
+                                </div>
+                                <a href="#" class="icon-button" title="编辑学习记录">
+                                    <i data-lucide="pencil" class="h-4 w-4"></i>
+                                </a>
+                            </div>
+                            <div class="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                                <span>90 分钟</span>
+                                <span class="text-slate-300">/</span>
+                                <span>85%</span>
+                                <span class="tag done">已完成</span>
+                            </div>
+                            <p class="mt-3 line-clamp-3 whitespace-pre-line text-sm text-slate-600">复习 SQLAlchemy 模型关系，完成 Flask 登录流程梳理。</p>
+                        </article>
+
+                        <article class="list-card">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-sm text-slate-500">2026-09-16</p>
+                                    <h3 class="mt-1 font-semibold">英语</h3>
+                                </div>
+                                <a href="#" class="icon-button" title="编辑学习记录">
+                                    <i data-lucide="pencil" class="h-4 w-4"></i>
+                                </a>
+                            </div>
+                            <div class="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                                <span>45 分钟</span>
+                                <span class="text-slate-300">/</span>
+                                <span>70%</span>
+                            </div>
+                            <p class="mt-3 line-clamp-3 whitespace-pre-line text-sm text-slate-600">完成听力精听一段，整理 12 个生词。</p>
+                        </article>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        lucide.createIcons();
+
+        new Chart(document.getElementById("previewChart"), {
+            type: "bar",
+            data: {
+                labels: ["09/11", "09/12", "09/13", "09/14", "09/15", "09/16", "09/17"],
+                datasets: [{
+                    label: "学习时长",
+                    data: [35, 80, 60, 120, 40, 45, 90],
+                    backgroundColor: "rgba(47, 111, 94, 0.82)",
+                    borderColor: "rgb(47, 111, 94)",
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    maxBarThickness: 42
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `${context.parsed.y || 0} 分钟`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

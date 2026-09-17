@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == "new" %}记录学习{% else %}编辑学习记录{% endif %} - 个人日记与学习追踪{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-3xl">
+    <div class="mb-5 flex items-center justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-semibold">{% if mode == "new" %}记录学习{% else %}编辑学习记录{% endif %}</h1>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">记录科目、时长、总结和完成度。</p>
+        </div>
+        <a href="{{ url_for('study_logs') }}" class="btn-secondary">
+            <i data-lucide="arrow-left" class="h-4 w-4"></i>
+            返回
+        </a>
+    </div>
+
+    <form method="post" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+                <label class="label" for="entry_date">日期</label>
+                <input id="entry_date" name="entry_date" type="date" class="field" value="{{ study_log.entry_date.strftime('%Y-%m-%d') }}" required>
+            </div>
+            <div>
+                <label class="label" for="subject">科目</label>
+                <input id="subject" name="subject" class="field" value="{{ study_log.subject }}" placeholder="Python / 英语" required maxlength="120">
+            </div>
+            <div>
+                <label class="label" for="minutes">学习时长（分钟）</label>
+                <input id="minutes" name="minutes" type="number" min="0" step="1" class="field" value="{{ study_log.minutes }}" required>
+            </div>
+            <div>
+                <label class="label" for="completion_percent">完成度（%）</label>
+                <input id="completion_percent" name="completion_percent" type="number" min="0" max="100" step="1" class="field" value="{{ study_log.completion_percent }}" required>
+            </div>
+        </div>
+
+        <label class="mt-4 flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <input
+                type="checkbox"
+                name="is_completed"
+                class="h-4 w-4 rounded border-slate-300 text-leaf focus:ring-leaf"
+                {% if study_log.is_completed %}checked{% endif %}
+            >
+            今天的学习计划已完成
+        </label>
+
+        <div class="mt-4">
+            <label class="label" for="summary">学习内容总结</label>
+            <textarea id="summary" name="summary" rows="10" class="field min-h-60 resize-y" required>{{ study_log.summary }}</textarea>
+        </div>
+
+        <div class="mt-5 flex flex-wrap justify-end gap-2">
+            <a href="{{ url_for('study_logs') }}" class="btn-secondary">取消</a>
+            <button type="submit" class="btn-primary">
+                <i data-lucide="save" class="h-4 w-4"></i>
+                保存
+            </button>
+        </div>
+    </form>
+</section>
+{% endblock %}

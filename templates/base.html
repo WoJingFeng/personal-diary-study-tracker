@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}个人日记与学习追踪{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        ink: "#1f2937",
+                        leaf: "#2f6f5e",
+                        mint: "#e6f4ef",
+                        paper: "#f7f4ef",
+                        amberline: "#d8a24a"
+                    }
+                }
+            }
+        };
+    </script>
+    <script>
+        if (
+            localStorage.theme === "dark" ||
+            (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+            document.documentElement.classList.add("dark");
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="min-h-screen bg-paper text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+    <header class="border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+        <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+                    <span class="grid h-10 w-10 place-items-center rounded-lg bg-leaf text-white">
+                        <i data-lucide="notebook-pen" class="h-5 w-5"></i>
+                    </span>
+                    <span>
+                        <span class="block text-base font-semibold">日记与学习追踪</span>
+                        <span class="block text-xs text-slate-500 dark:text-slate-400">Personal Journal</span>
+                    </span>
+                </a>
+
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                        data-theme-toggle
+                        aria-label="切换主题"
+                        title="切换主题"
+                    >
+                        <i data-lucide="moon" class="h-4 w-4"></i>
+                    </button>
+                    {% if current_user.is_authenticated %}
+                    <form action="{{ url_for('logout') }}" method="post">
+                        <button
+                            type="submit"
+                            class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                            aria-label="退出登录"
+                            title="退出登录"
+                        >
+                            <i data-lucide="log-out" class="h-4 w-4"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if current_user.is_authenticated %}
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <nav class="flex flex-wrap items-center gap-2">
+                    <a class="nav-link" href="{{ url_for('index') }}">
+                        <i data-lucide="layout-dashboard" class="h-4 w-4"></i>
+                        看板
+                    </a>
+                    <a class="nav-link" href="{{ url_for('diaries') }}">
+                        <i data-lucide="book-open-text" class="h-4 w-4"></i>
+                        日记
+                    </a>
+                    <a class="nav-link" href="{{ url_for('study_logs') }}">
+                        <i data-lucide="graduation-cap" class="h-4 w-4"></i>
+                        学习
+                    </a>
+                    <a class="nav-link primary" href="{{ url_for('new_diary') }}">
+                        <i data-lucide="pen-line" class="h-4 w-4"></i>
+                        写日记
+                    </a>
+                    <a class="nav-link primary" href="{{ url_for('new_study_log') }}">
+                        <i data-lucide="timer-reset" class="h-4 w-4"></i>
+                        记学习
+                    </a>
+                </nav>
+
+                <form action="{{ url_for('search') }}" method="get" class="flex w-full max-w-md items-center gap-2 lg:w-80">
+                    <label for="global-search" class="sr-only">搜索</label>
+                    <div class="relative w-full">
+                        <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+                        <input
+                            id="global-search"
+                            name="q"
+                            value="{{ request.args.get('q', '') }}"
+                            class="field pl-9"
+                            placeholder="搜索关键词、标签、科目"
+                        >
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="mb-5 space-y-2">
+                {% for category, message in messages %}
+                <div class="rounded-lg border px-4 py-3 text-sm {% if category == 'error' %}border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-200{% else %}border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        lucide.createIcons();
+
+        const themeToggle = document.querySelector("[data-theme-toggle]");
+        if (themeToggle) {
+            themeToggle.addEventListener("click", () => {
+                const isDark = document.documentElement.classList.toggle("dark");
+                localStorage.theme = isDark ? "dark" : "light";
+                lucide.createIcons();
+            });
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

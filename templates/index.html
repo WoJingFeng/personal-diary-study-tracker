@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}首页看板 - 个人日记与学习追踪{% endblock %}
+
+{% block content %}
+<section class="space-y-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold tracking-normal">首页看板</h1>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">最近 7 天的记录和学习节奏。</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ url_for('new_diary') }}" class="btn-primary">
+                <i data-lucide="pen-line" class="h-4 w-4"></i>
+                写日记
+            </a>
+            <a href="{{ url_for('new_study_log') }}" class="btn-secondary">
+                <i data-lucide="timer-reset" class="h-4 w-4"></i>
+                记学习
+            </a>
+        </div>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-3">
+        <article class="metric-card">
+            <div class="metric-icon bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                <i data-lucide="book-marked" class="h-5 w-5"></i>
+            </div>
+            <div>
+                <p class="metric-label">最近 7 天日记</p>
+                <p class="metric-value">{{ diary_count_7d }}</p>
+            </div>
+        </article>
+
+        <article class="metric-card">
+            <div class="metric-icon bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                <i data-lucide="clock-3" class="h-5 w-5"></i>
+            </div>
+            <div>
+                <p class="metric-label">累计学习时长</p>
+                <p class="metric-value">{{ total_study_minutes | minutes_label }}</p>
+            </div>
+        </article>
+
+        <article class="metric-card">
+            <div class="metric-icon bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300">
+                <i data-lucide="badge-check" class="h-5 w-5"></i>
+            </div>
+            <div>
+                <p class="metric-label">已完成学习记录</p>
+                <p class="metric-value">{{ completed_count }}</p>
+            </div>
+        </article>
+    </div>
+
+    <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div class="mb-4 flex items-center justify-between gap-3">
+            <h2 class="text-base font-semibold">最近一周学习时长</h2>
+            <span class="text-xs text-slate-500 dark:text-slate-400">分钟</span>
+        </div>
+        <div class="h-72">
+            <canvas
+                id="weeklyStudyChart"
+                data-labels='{{ chart_labels | tojson }}'
+                data-values='{{ chart_values | tojson }}'
+            ></canvas>
+        </div>
+    </section>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+        <section>
+            <div class="mb-3 flex items-center justify-between">
+                <h2 class="text-base font-semibold">最近日记</h2>
+                <a class="text-sm font-medium text-leaf hover:underline dark:text-emerald-300" href="{{ url_for('diaries') }}">查看全部</a>
+            </div>
+            <div class="space-y-3">
+                {% for diary in recent_diaries %}
+                <article class="list-card">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">{{ diary.entry_date.strftime("%Y-%m-%d") }}</p>
+                            <h3 class="mt-1 font-semibold">{{ diary.title }}</h3>
+                        </div>
+                        <a href="{{ url_for('edit_diary', diary_id=diary.id) }}" class="icon-button" title="编辑日记" aria-label="编辑日记">
+                            <i data-lucide="pencil" class="h-4 w-4"></i>
+                        </a>
+                    </div>
+                    <p class="mt-3 line-clamp-3 whitespace-pre-line text-sm text-slate-600 dark:text-slate-300">{{ diary.body }}</p>
+                    {% if diary.mood_tags %}
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        {% for tag in diary.tag_list() %}
+                        <span class="tag">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </article>
+                {% else %}
+                <div class="empty-state">还没有日记记录。</div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section>
+            <div class="mb-3 flex items-center justify-between">
+                <h2 class="text-base font-semibold">最近学习</h2>
+                <a class="text-sm font-medium text-leaf hover:underline dark:text-emerald-300" href="{{ url_for('study_logs') }}">查看全部</a>
+            </div>
+            <div class="space-y-3">
+                {% for log in recent_study_logs %}
+                <article class="list-card">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">{{ log.entry_date.strftime("%Y-%m-%d") }}</p>
+                            <h3 class="mt-1 font-semibold">{{ log.subject }}</h3>
+                        </div>
+                        <a href="{{ url_for('edit_study_log', log_id=log.id) }}" class="icon-button" title="编辑学习记录" aria-label="编辑学习记录">
+                            <i data-lucide="pencil" class="h-4 w-4"></i>
+                        </a>
+                    </div>
+                    <div class="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                        <span>{{ log.minutes | minutes_label }}</span>
+                        <span class="text-slate-300 dark:text-slate-700">/</span>
+                        <span>{{ log.completion_percent }}%</span>
+                        {% if log.is_completed %}
+                        <span class="tag done">已完成</span>
+                        {% endif %}
+                    </div>
+                    <p class="mt-3 line-clamp-3 whitespace-pre-line text-sm text-slate-600 dark:text-slate-300">{{ log.summary }}</p>
+                </article>
+                {% else %}
+                <div class="empty-state">还没有学习记录。</div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

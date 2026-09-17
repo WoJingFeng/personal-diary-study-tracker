@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}学习记录 - 个人日记与学习追踪{% endblock %}
+
+{% block content %}
+<section class="space-y-5">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold">学习记录</h1>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">按日期、科目和关键词筛选。</p>
+        </div>
+        <a href="{{ url_for('new_study_log') }}" class="btn-primary">
+            <i data-lucide="timer-reset" class="h-4 w-4"></i>
+            记学习
+        </a>
+    </div>
+
+    <form method="get" class="filter-bar">
+        <input name="q" class="field" value="{{ request.args.get('q', '') }}" placeholder="关键词">
+        <input name="subject" class="field" value="{{ request.args.get('subject', '') }}" placeholder="科目">
+        <input name="start_date" type="date" class="field" value="{{ request.args.get('start_date', '') }}">
+        <input name="end_date" type="date" class="field" value="{{ request.args.get('end_date', '') }}">
+        <button class="btn-secondary justify-center" type="submit">
+            <i data-lucide="filter" class="h-4 w-4"></i>
+            筛选
+        </button>
+    </form>
+
+    <div class="space-y-3">
+        {% for log in study_logs %}
+        <article class="list-card">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ log.entry_date.strftime("%Y-%m-%d") }}</p>
+                    <h2 class="mt-1 text-lg font-semibold">{{ log.subject }}</h2>
+                </div>
+                <div class="flex gap-2">
+                    <a href="{{ url_for('edit_study_log', log_id=log.id) }}" class="icon-button" title="编辑" aria-label="编辑">
+                        <i data-lucide="pencil" class="h-4 w-4"></i>
+                    </a>
+                    <form action="{{ url_for('delete_study_log', log_id=log.id) }}" method="post" onsubmit="return confirm('确定删除这条学习记录吗？');">
+                        <button class="icon-button danger" type="submit" title="删除" aria-label="删除">
+                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-3 grid gap-3 sm:grid-cols-3">
+                <div class="mini-stat">
+                    <span>时长</span>
+                    <strong>{{ log.minutes | minutes_label }}</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>完成度</span>
+                    <strong>{{ log.completion_percent }}%</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>状态</span>
+                    <strong>{% if log.is_completed %}已完成{% else %}进行中{% endif %}</strong>
+                </div>
+            </div>
+
+            <p class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700 dark:text-slate-300">{{ log.summary }}</p>
+        </article>
+        {% else %}
+        <div class="empty-state">没有找到匹配的学习记录。</div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

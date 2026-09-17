@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>交互演示 - 个人日记与学习追踪</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        leaf: "#2f6f5e",
+                        paper: "#f7f4ef"
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="stylesheet" href="static/css/app.css">
+</head>
+<body class="min-h-screen bg-paper text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+    <header class="border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+        <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <a href="#dashboard" class="flex items-center gap-3" data-tab-link="dashboard">
+                    <span class="grid h-10 w-10 place-items-center rounded-lg bg-leaf text-white">
+                        <i data-lucide="notebook-pen" class="h-5 w-5"></i>
+                    </span>
+                    <span>
+                        <span class="block text-base font-semibold">日记与学习追踪</span>
+                        <span class="block text-xs text-slate-500 dark:text-slate-400">Interactive Demo</span>
+                    </span>
+                </a>
+
+                <div class="flex items-center gap-2">
+                    <button class="btn-secondary" type="button" id="resetDemo">
+                        <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
+                        重置演示
+                    </button>
+                    <button
+                        type="button"
+                        class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                        id="themeToggle"
+                        aria-label="切换主题"
+                        title="切换主题"
+                    >
+                        <i data-lucide="moon" class="h-4 w-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <nav class="flex flex-wrap items-center gap-2">
+                    <button class="nav-link" type="button" data-tab-button="dashboard">
+                        <i data-lucide="layout-dashboard" class="h-4 w-4"></i>
+                        看板
+                    </button>
+                    <button class="nav-link" type="button" data-tab-button="diaries">
+                        <i data-lucide="book-open-text" class="h-4 w-4"></i>
+                        日记
+                    </button>
+                    <button class="nav-link" type="button" data-tab-button="study">
+                        <i data-lucide="graduation-cap" class="h-4 w-4"></i>
+                        学习
+                    </button>
+                </nav>
+
+                <div class="relative w-full max-w-md lg:w-80">
+                    <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+                    <input id="globalSearch" class="field pl-9" placeholder="搜索关键词、标签、科目">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        <section id="dashboardView" class="space-y-6" data-view="dashboard">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h1 class="text-2xl font-semibold tracking-normal">首页看板</h1>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">这是可直接打开的浏览器演示版，数据保存在本机 localStorage。</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button class="btn-primary" type="button" data-tab-button="diaries" data-focus="diaryTitle">
+                        <i data-lucide="pen-line" class="h-4 w-4"></i>
+                        写日记
+                    </button>
+                    <button class="btn-secondary" type="button" data-tab-button="study" data-focus="studySubject">
+                        <i data-lucide="timer-reset" class="h-4 w-4"></i>
+                        记学习
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-3">
+                <article class="metric-card">
+                    <div class="metric-icon bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                        <i data-lucide="book-marked" class="h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <p class="metric-label">最近 7 天日记</p>
+                        <p class="metric-value" id="diaryCount7d">0</p>
+                    </div>
+                </article>
+
+                <article class="metric-card">
+                    <div class="metric-icon bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                        <i data-lucide="clock-3" class="h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <p class="metric-label">累计学习时长</p>
+                        <p class="metric-value" id="totalStudyMinutes">0 分钟</p>
+                    </div>
+                </article>
+
+                <article class="metric-card">
+                    <div class="metric-icon bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300">
+                        <i data-lucide="badge-check" class="h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <p class="metric-label">已完成学习记录</p>
+                        <p class="metric-value" id="completedCount">0</p>
+                    </div>
+                </article>
+            </div>
+
+            <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div class="mb-4 flex items-center justify-between gap-3">
+                    <h2 class="text-base font-semibold">最近一周学习时长</h2>
+                    <span class="text-xs text-slate-500 dark:text-slate-400">分钟</span>
+                </div>
+                <div class="h-72">
+                    <canvas id="demoChart"></canvas>
+                </div>
+            </section>
+
+            <div class="grid gap-6 lg:grid-cols-2">
+                <section>
+                    <div class="mb-3 flex items-center justify-between">
+                        <h2 class="text-base font-semibold">最近日记</h2>
+                        <button class="text-sm font-medium text-leaf hover:underline dark:text-emerald-300" type="button" data-tab-button="diaries">查看全部</button>
+                    </div>
+                    <div id="recentDiaries" class="space-y-3"></div>
+                </section>
+
+                <section>
+                    <div class="mb-3 flex items-center justify-between">
+                        <h2 class="text-base font-semibold">最近学习</h2>
+                        <button class="text-sm font-medium text-leaf hover:underline dark:text-emerald-300" type="button" data-tab-button="study">查看全部</button>
+                    </div>
+                    <div id="recentStudyLogs" class="space-y-3"></div>
+                </section>
+            </div>
+        </section>
+
+        <section id="diariesView" class="hidden space-y-5" data-view="diaries">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h1 class="text-2xl font-semibold">日记</h1>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">新增、编辑、删除，并按日期、标签和关键词筛选。</p>
+                </div>
+            </div>
+
+            <form id="diaryForm" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <input type="hidden" id="diaryId">
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="label" for="diaryDate">日期</label>
+                        <input id="diaryDate" type="date" class="field" required>
+                    </div>
+                    <div>
+                        <label class="label" for="diaryTags">心情标签</label>
+                        <input id="diaryTags" class="field" placeholder="#开心 #专注">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="label" for="diaryTitle">标题</label>
+                    <input id="diaryTitle" class="field" maxlength="160" required>
+                </div>
+                <div class="mt-4">
+                    <label class="label" for="diaryBody">正文</label>
+                    <textarea id="diaryBody" rows="8" class="field resize-y" required></textarea>
+                </div>
+                <div class="mt-5 flex flex-wrap justify-end gap-2">
+                    <button class="btn-secondary" type="button" id="clearDiaryForm">清空</button>
+                    <button class="btn-primary" type="submit">
+                        <i data-lucide="save" class="h-4 w-4"></i>
+                        保存日记
+                    </button>
+                </div>
+            </form>
+
+            <form id="diaryFilters" class="filter-bar">
+                <input id="diaryQuery" class="field" placeholder="关键词">
+                <input id="diaryTag" class="field" placeholder="#标签">
+                <input id="diaryStart" type="date" class="field">
+                <input id="diaryEnd" type="date" class="field">
+                <button class="btn-secondary justify-center" type="submit">
+                    <i data-lucide="filter" class="h-4 w-4"></i>
+                    筛选
+                </button>
+            </form>
+
+            <div id="diaryList" class="space-y-3"></div>
+        </section>
+
+        <section id="studyView" class="hidden space-y-5" data-view="study">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h1 class="text-2xl font-semibold">学习记录</h1>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">记录科目、时长、内容总结和完成度。</p>
+                </div>
+            </div>
+
+            <form id="studyForm" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <input type="hidden" id="studyId">
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="label" for="studyDate">日期</label>
+                        <input id="studyDate" type="date" class="field" required>
+                    </div>
+                    <div>
+                        <label class="label" for="studySubject">科目</label>
+                        <input id="studySubject" class="field" placeholder="Python / 英语" required>
+                    </div>
+                    <div>
+                        <label class="label" for="studyMinutes">学习时长（分钟）</label>
+                        <input id="studyMinutes" type="number" min="0" step="1" class="field" required>
+                    </div>
+                    <div>
+                        <label class="label" for="studyCompletion">完成度（%）</label>
+                        <input id="studyCompletion" type="number" min="0" max="100" step="1" class="field" required>
+                    </div>
+                </div>
+                <label class="mt-4 flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                    <input id="studyCompleted" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-leaf focus:ring-leaf">
+                    今天的学习计划已完成
+                </label>
+                <div class="mt-4">
+                    <label class="label" for="studySummary">学习内容总结</label>
+                    <textarea id="studySummary" rows="8" class="field resize-y" required></textarea>
+                </div>
+                <div class="mt-5 flex flex-wrap justify-end gap-2">
+                    <button class="btn-secondary" type="button" id="clearStudyForm">清空</button>
+                    <button class="btn-primary" type="submit">
+                        <i data-lucide="save" class="h-4 w-4"></i>
+                        保存学习记录
+                    </button>
+                </div>
+            </form>
+
+            <form id="studyFilters" class="filter-bar">
+                <input id="studyQuery" class="field" placeholder="关键词">
+                <input id="studySubjectFilter" class="field" placeholder="科目">
+                <input id="studyStart" type="date" class="field">
+                <input id="studyEnd" type="date" class="field">
+                <button class="btn-secondary justify-center" type="submit">
+                    <i data-lucide="filter" class="h-4 w-4"></i>
+                    筛选
+                </button>
+            </form>
+
+            <div id="studyList" class="space-y-3"></div>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const storeKey = "diaryStudyTrackerDemo";
+        let state = loadState();
+        let chart = null;
+        let activeTab = "dashboard";
+
+        const today = new Date();
+        const isoToday = toISODate(today);
+
+        document.getElementById("diaryDate").value = isoToday;
+        document.getElementById("studyDate").value = isoToday;
+        document.getElementById("studyMinutes").value = 45;
+        document.getElementById("studyCompletion").value = 100;
+
+        document.querySelectorAll("[data-tab-button], [data-tab-link]").forEach((el) => {
+            el.addEventListener("click", (event) => {
+                event.preventDefault();
+                const tab = el.dataset.tabButton || el.dataset.tabLink;
+                showTab(tab);
+                const focusId = el.dataset.focus;
+                if (focusId) {
+                    setTimeout(() => document.getElementById(focusId)?.focus(), 80);
+                }
+            });
+        });
+
+        document.getElementById("themeToggle").addEventListener("click", () => {
+            const isDark = document.documentElement.classList.toggle("dark");
+            localStorage.theme = isDark ? "dark" : "light";
+            renderAll();
+        });
+
+        document.getElementById("resetDemo").addEventListener("click", () => {
+            if (!confirm("确定恢复演示数据吗？当前浏览器里的演示记录会被覆盖。")) {
+                return;
+            }
+            state = seedState();
+            saveState();
+            clearDiaryForm();
+            clearStudyForm();
+            renderAll();
+        });
+
+        document.getElementById("globalSearch").addEventListener("input", (event) => {
+            document.getElementById("diaryQuery").value = event.target.value;
+            document.getElementById("studyQuery").value = event.target.value;
+            renderLists();
+        });
+
+        document.getElementById("diaryForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const id = document.getElementById("diaryId").value || newId();
+            const item = {
+                id,
+                entryDate: document.getElementById("diaryDate").value,
+                title: document.getElementById("diaryTitle").value.trim() || "无标题",
+                body: document.getElementById("diaryBody").value.trim(),
+                tags: normalizeTags(document.getElementById("diaryTags").value),
+                updatedAt: Date.now()
+            };
+            state.diaries = state.diaries.filter((diary) => diary.id !== id).concat(item);
+            saveState();
+            clearDiaryForm();
+            renderAll();
+        });
+
+        document.getElementById("studyForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const id = document.getElementById("studyId").value || newId();
+            const item = {
+                id,
+                entryDate: document.getElementById("studyDate").value,
+                subject: document.getElementById("studySubject").value.trim() || "未分类",
+                minutes: clampInt(document.getElementById("studyMinutes").value, 0, 100000, 0),
+                completion: clampInt(document.getElementById("studyCompletion").value, 0, 100, 100),
+                completed: document.getElementById("studyCompleted").checked,
+                summary: document.getElementById("studySummary").value.trim(),
+                updatedAt: Date.now()
+            };
+            state.studyLogs = state.studyLogs.filter((log) => log.id !== id).concat(item);
+            saveState();
+            clearStudyForm();
+            renderAll();
+        });
+
+        document.getElementById("clearDiaryForm").addEventListener("click", clearDiaryForm);
+        document.getElementById("clearStudyForm").addEventListener("click", clearStudyForm);
+        document.getElementById("diaryFilters").addEventListener("submit", (event) => {
+            event.preventDefault();
+            renderLists();
+        });
+        document.getElementById("studyFilters").addEventListener("submit", (event) => {
+            event.preventDefault();
+            renderLists();
+        });
+
+        window.editDiary = function (id) {
+            const diary = state.diaries.find((item) => item.id === id);
+            if (!diary) return;
+            showTab("diaries");
+            document.getElementById("diaryId").value = diary.id;
+            document.getElementById("diaryDate").value = diary.entryDate;
+            document.getElementById("diaryTitle").value = diary.title;
+            document.getElementById("diaryBody").value = diary.body;
+            document.getElementById("diaryTags").value = diary.tags;
+            document.getElementById("diaryTitle").focus();
+        };
+
+        window.deleteDiary = function (id) {
+            if (!confirm("确定删除这篇日记吗？")) return;
+            state.diaries = state.diaries.filter((item) => item.id !== id);
+            saveState();
+            renderAll();
+        };
+
+        window.editStudy = function (id) {
+            const log = state.studyLogs.find((item) => item.id === id);
+            if (!log) return;
+            showTab("study");
+            document.getElementById("studyId").value = log.id;
+            document.getElementById("studyDate").value = log.entryDate;
+            document.getElementById("studySubject").value = log.subject;
+            document.getElementById("studyMinutes").value = log.minutes;
+            document.getElementById("studyCompletion").value = log.completion;
+            document.getElementById("studyCompleted").checked = log.completed;
+            document.getElementById("studySummary").value = log.summary;
+            document.getElementById("studySubject").focus();
+        };
+
+        window.deleteStudy = function (id) {
+            if (!confirm("确定删除这条学习记录吗？")) return;
+            state.studyLogs = state.studyLogs.filter((item) => item.id !== id);
+            saveState();
+            renderAll();
+        };
+
+        if (
+            localStorage.theme === "dark" ||
+            (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+            document.documentElement.classList.add("dark");
+        }
+
+        renderAll();
+
+        function showTab(tab) {
+            activeTab = tab;
+            document.querySelectorAll("[data-view]").forEach((view) => {
+                view.classList.toggle("hidden", view.dataset.view !== tab);
+            });
+            document.querySelectorAll("[data-tab-button]").forEach((button) => {
+                const selected = button.dataset.tabButton === tab;
+                button.classList.toggle("primary", selected);
+            });
+            renderAll();
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderLists();
+            lucide.createIcons();
+        }
+
+        function renderDashboard() {
+            const sevenDays = getLastSevenDays();
+            const start = sevenDays[0];
+            const diaryCount = state.diaries.filter((item) => item.entryDate >= start && item.entryDate <= isoToday).length;
+            const totalMinutes = state.studyLogs.reduce((sum, item) => sum + Number(item.minutes || 0), 0);
+            const completedCount = state.studyLogs.filter((item) => item.completed).length;
+
+            document.getElementById("diaryCount7d").textContent = diaryCount;
+            document.getElementById("totalStudyMinutes").textContent = minutesLabel(totalMinutes);
+            document.getElementById("completedCount").textContent = completedCount;
+
+            const labels = sevenDays.map((day) => day.slice(5).replace("-", "/"));
+            const values = sevenDays.map((day) => {
+                return state.studyLogs
+                    .filter((item) => item.entryDate === day)
+                    .reduce((sum, item) => sum + Number(item.minutes || 0), 0);
+            });
+
+            renderChart(labels, values);
+            renderRecent();
+        }
+
+        function renderRecent() {
+            const recentDiaries = sortByDate(state.diaries).slice(0, 5);
+            const recentStudy = sortByDate(state.studyLogs).slice(0, 5);
+
+            document.getElementById("recentDiaries").innerHTML = recentDiaries.length
+                ? recentDiaries.map(diaryCard).join("")
+                : `<div class="empty-state">还没有日记记录。</div>`;
+
+            document.getElementById("recentStudyLogs").innerHTML = recentStudy.length
+                ? recentStudy.map(studyCard).join("")
+                : `<div class="empty-state">还没有学习记录。</div>`;
+        }
+
+        function renderLists() {
+            const diaryQuery = read("diaryQuery").toLowerCase();
+            const diaryTag = normalizeSingleTag(read("diaryTag").toLowerCase());
+            const diaryStart = read("diaryStart");
+            const diaryEnd = read("diaryEnd");
+
+            const filteredDiaries = sortByDate(state.diaries).filter((item) => {
+                const haystack = `${item.title} ${item.body} ${item.tags}`.toLowerCase();
+                return matchesText(haystack, diaryQuery)
+                    && (!diaryTag || item.tags.toLowerCase().includes(diaryTag))
+                    && matchesDate(item.entryDate, diaryStart, diaryEnd);
+            });
+
+            document.getElementById("diaryList").innerHTML = filteredDiaries.length
+                ? filteredDiaries.map(diaryCard).join("")
+                : `<div class="empty-state">没有找到匹配的日记。</div>`;
+
+            const studyQuery = read("studyQuery").toLowerCase();
+            const subject = read("studySubjectFilter").toLowerCase();
+            const studyStart = read("studyStart");
+            const studyEnd = read("studyEnd");
+
+            const filteredStudy = sortByDate(state.studyLogs).filter((item) => {
+                const haystack = `${item.subject} ${item.summary}`.toLowerCase();
+                return matchesText(haystack, studyQuery)
+                    && (!subject || item.subject.toLowerCase().includes(subject))
+                    && matchesDate(item.entryDate, studyStart, studyEnd);
+            });
+
+            document.getElementById("studyList").innerHTML = filteredStudy.length
+                ? filteredStudy.map(studyCard).join("")
+                : `<div class="empty-state">没有找到匹配的学习记录。</div>`;
+        }
+
+        function renderChart(labels, values) {
+            const isDark = document.documentElement.classList.contains("dark");
+            const ctx = document.getElementById("demoChart");
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels,
+                    datasets: [{
+                        label: "学习时长",
+                        data: values,
+                        backgroundColor: isDark ? "rgba(52, 211, 153, 0.75)" : "rgba(47, 111, 94, 0.82)",
+                        borderColor: isDark ? "rgb(52, 211, 153)" : "rgb(47, 111, 94)",
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        maxBarThickness: 42
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.parsed.y || 0} 分钟`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: isDark ? "#cbd5e1" : "#475569" }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: isDark ? "rgba(51, 65, 85, 0.7)" : "rgba(203, 213, 225, 0.8)" },
+                            ticks: {
+                                precision: 0,
+                                color: isDark ? "#cbd5e1" : "#475569"
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function diaryCard(item) {
+            const tags = normalizeTags(item.tags)
+                .split(" ")
+                .filter(Boolean)
+                .map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`)
+                .join("");
+
+            return `
+                <article class="list-card">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">${escapeHtml(item.entryDate)}</p>
+                            <h2 class="mt-1 text-lg font-semibold">${escapeHtml(item.title)}</h2>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="icon-button" type="button" title="编辑" aria-label="编辑" onclick="editDiary('${item.id}')">
+                                <i data-lucide="pencil" class="h-4 w-4"></i>
+                            </button>
+                            <button class="icon-button danger" type="button" title="删除" aria-label="删除" onclick="deleteDiary('${item.id}')">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700 dark:text-slate-300">${escapeHtml(item.body)}</p>
+                    ${tags ? `<div class="mt-3 flex flex-wrap gap-2">${tags}</div>` : ""}
+                </article>
+            `;
+        }
+
+        function studyCard(item) {
+            return `
+                <article class="list-card">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">${escapeHtml(item.entryDate)}</p>
+                            <h2 class="mt-1 text-lg font-semibold">${escapeHtml(item.subject)}</h2>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="icon-button" type="button" title="编辑" aria-label="编辑" onclick="editStudy('${item.id}')">
+                                <i data-lucide="pencil" class="h-4 w-4"></i>
+                            </button>
+                            <button class="icon-button danger" type="button" title="删除" aria-label="删除" onclick="deleteStudy('${item.id}')">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-3 grid gap-3 sm:grid-cols-3">
+                        <div class="mini-stat"><span>时长</span><strong>${minutesLabel(item.minutes)}</strong></div>
+                        <div class="mini-stat"><span>完成度</span><strong>${item.completion}%</strong></div>
+                        <div class="mini-stat"><span>状态</span><strong>${item.completed ? "已完成" : "进行中"}</strong></div>
+                    </div>
+                    <p class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700 dark:text-slate-300">${escapeHtml(item.summary)}</p>
+                </article>
+            `;
+        }
+
+        function loadState() {
+            const raw = localStorage.getItem(storeKey);
+            if (!raw) {
+                const seeded = seedState();
+                localStorage.setItem(storeKey, JSON.stringify(seeded));
+                return seeded;
+            }
+            try {
+                return JSON.parse(raw);
+            } catch {
+                return seedState();
+            }
+        }
+
+        function seedState() {
+            return {
+                diaries: [
+                    {
+                        id: "d1",
+                        entryDate: shiftDate(0),
+                        title: "把 Flask 项目跑通",
+                        body: "今天把日记和学习追踪的主流程理清楚了。界面不需要复杂，但要足够顺手，能每天打开就记录。",
+                        tags: "#专注 #开心",
+                        updatedAt: Date.now()
+                    },
+                    {
+                        id: "d2",
+                        entryDate: shiftDate(-1),
+                        title: "整理英语复盘",
+                        body: "背单词比想象中慢，不过复习曲线开始稳定了。明天继续拆小块。",
+                        tags: "#平静",
+                        updatedAt: Date.now() - 1
+                    },
+                    {
+                        id: "d3",
+                        entryDate: shiftDate(-4),
+                        title: "周计划微调",
+                        body: "把目标从“每天学很多”改成“每天至少完成一个明确的小任务”。感觉压力小了很多。",
+                        tags: "#复盘 #清醒",
+                        updatedAt: Date.now() - 2
+                    }
+                ],
+                studyLogs: [
+                    {
+                        id: "s1",
+                        entryDate: shiftDate(0),
+                        subject: "Python",
+                        minutes: 90,
+                        completion: 85,
+                        completed: true,
+                        summary: "复习 SQLAlchemy 模型关系，完成 Flask 登录流程梳理。",
+                        updatedAt: Date.now()
+                    },
+                    {
+                        id: "s2",
+                        entryDate: shiftDate(-1),
+                        subject: "英语",
+                        minutes: 45,
+                        completion: 70,
+                        completed: false,
+                        summary: "完成听力精听一段，整理 12 个生词。",
+                        updatedAt: Date.now() - 1
+                    },
+                    {
+                        id: "s3",
+                        entryDate: shiftDate(-3),
+                        subject: "Python",
+                        minutes: 120,
+                        completion: 100,
+                        completed: true,
+                        summary: "写完日记 CRUD 的路由草稿。",
+                        updatedAt: Date.now() - 2
+                    },
+                    {
+                        id: "s4",
+                        entryDate: shiftDate(-5),
+                        subject: "算法",
+                        minutes: 60,
+                        completion: 60,
+                        completed: false,
+                        summary: "练习双指针题目，整理错题。",
+                        updatedAt: Date.now() - 3
+                    }
+                ]
+            };
+        }
+
+        function saveState() {
+            localStorage.setItem(storeKey, JSON.stringify(state));
+        }
+
+        function clearDiaryForm() {
+            document.getElementById("diaryId").value = "";
+            document.getElementById("diaryDate").value = isoToday;
+            document.getElementById("diaryTitle").value = "";
+            document.getElementById("diaryBody").value = "";
+            document.getElementById("diaryTags").value = "";
+        }
+
+        function clearStudyForm() {
+            document.getElementById("studyId").value = "";
+            document.getElementById("studyDate").value = isoToday;
+            document.getElementById("studySubject").value = "";
+            document.getElementById("studyMinutes").value = 45;
+            document.getElementById("studyCompletion").value = 100;
+            document.getElementById("studyCompleted").checked = false;
+            document.getElementById("studySummary").value = "";
+        }
+
+        function normalizeTags(raw) {
+            return Array.from(new Set(
+                String(raw || "")
+                    .replaceAll(",", " ")
+                    .split(/\s+/)
+                    .map((tag) => tag.trim())
+                    .filter(Boolean)
+                    .map((tag) => tag.startsWith("#") ? tag : `#${tag}`)
+            )).join(" ");
+        }
+
+        function normalizeSingleTag(raw) {
+            const tag = String(raw || "").trim();
+            if (!tag) return "";
+            return tag.startsWith("#") ? tag : `#${tag}`;
+        }
+
+        function sortByDate(items) {
+            return [...items].sort((a, b) => {
+                if (a.entryDate !== b.entryDate) {
+                    return b.entryDate.localeCompare(a.entryDate);
+                }
+                return Number(b.updatedAt || 0) - Number(a.updatedAt || 0);
+            });
+        }
+
+        function matchesText(haystack, query) {
+            return !query || haystack.includes(query);
+        }
+
+        function matchesDate(dateValue, start, end) {
+            return (!start || dateValue >= start) && (!end || dateValue <= end);
+        }
+
+        function read(id) {
+            return document.getElementById(id).value.trim();
+        }
+
+        function clampInt(value, min, max, fallback) {
+            const number = Number.parseInt(value, 10);
+            if (Number.isNaN(number)) return fallback;
+            return Math.min(max, Math.max(min, number));
+        }
+
+        function minutesLabel(minutes) {
+            const safe = Number(minutes || 0);
+            const hours = Math.floor(safe / 60);
+            const rest = safe % 60;
+            if (hours && rest) return `${hours} 小时 ${rest} 分钟`;
+            if (hours) return `${hours} 小时`;
+            return `${rest} 分钟`;
+        }
+
+        function getLastSevenDays() {
+            return Array.from({ length: 7 }, (_, index) => shiftDate(index - 6));
+        }
+
+        function shiftDate(offset) {
+            const date = new Date();
+            date.setDate(date.getDate() + offset);
+            return toISODate(date);
+        }
+
+        function toISODate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        }
+
+        function escapeHtml(value) {
+            return String(value || "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function newId() {
+            if (window.crypto && typeof window.crypto.randomUUID === "function") {
+                return window.crypto.randomUUID();
+            }
+            return `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        }
+    </script>
+</body>
+</html>
