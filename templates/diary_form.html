@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}{% if mode == "new" %}写日记{% else %}编辑日记{% endif %} - 个人日记与学习追踪{% endblock %}
+{% block title %}{% if mode == "new" %}写日记{% else %}编辑日记{% endif %} · 迹页{% endblock %}
 
 {% block content %}
 <section class="mx-auto max-w-3xl">
     <div class="mb-5 flex items-center justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-semibold">{% if mode == "new" %}写日记{% else %}编辑日记{% endif %}</h1>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">记录日期、标题、正文和心情标签。</p>
+            <p class="eyebrow">JOURNAL / 日常片段</p>
+            <h1 class="page-title">{% if mode == "new" %}写下今天{% else %}编辑日记{% endif %}<span class="accent-period">。</span></h1>
+            <p class="page-description">让值得记住的瞬间有处可去。</p>
         </div>
         <a href="{{ url_for('diaries') }}" class="btn-secondary">
             <i data-lucide="arrow-left" class="h-4 w-4"></i>
@@ -15,7 +16,8 @@
         </a>
     </div>
 
-    <form method="post" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <form method="post" class="form-surface">
+        <div class="form-heading"><span class="section-index">YOUR JOURNAL</span><h2>日记内容</h2></div>
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
                 <label class="label" for="entry_date">日期</label>

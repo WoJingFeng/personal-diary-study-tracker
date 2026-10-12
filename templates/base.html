@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}个人日记与学习追踪{% endblock %}</title>
+    <title>{% block title %}迹页 · 日记与学习{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,109 +11,55 @@
             theme: {
                 extend: {
                     colors: {
-                        ink: "#1f2937",
-                        leaf: "#2f6f5e",
-                        mint: "#e6f4ef",
-                        paper: "#f7f4ef",
-                        amberline: "#d8a24a"
+                        ink: "#202a26",
+                        leaf: "#216b60",
+                        mint: "#e3f0e9",
+                        paper: "#f6f7f5",
+                        amberline: "#c77552"
                     }
                 }
             }
         };
     </script>
     <script>
-        if (
-            localStorage.theme === "dark" ||
-            (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ) {
+        if (localStorage.theme === "dark") {
             document.documentElement.classList.add("dark");
         }
     </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/refresh.css') }}">
 </head>
-<body class="min-h-screen bg-paper text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
-    <header class="border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
-        <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <a href="{{ url_for('index') }}" class="flex items-center gap-3">
-                    <span class="grid h-10 w-10 place-items-center rounded-lg bg-leaf text-white">
-                        <i data-lucide="notebook-pen" class="h-5 w-5"></i>
-                    </span>
-                    <span>
-                        <span class="block text-base font-semibold">日记与学习追踪</span>
-                        <span class="block text-xs text-slate-500 dark:text-slate-400">Personal Journal</span>
-                    </span>
-                </a>
-
-                <div class="flex items-center gap-2">
-                    <button
-                        type="button"
-                        class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-                        data-theme-toggle
-                        aria-label="切换主题"
-                        title="切换主题"
-                    >
-                        <i data-lucide="moon" class="h-4 w-4"></i>
-                    </button>
-                    {% if current_user.is_authenticated %}
-                    <form action="{{ url_for('logout') }}" method="post">
-                        <button
-                            type="submit"
-                            class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-                            aria-label="退出登录"
-                            title="退出登录"
-                        >
-                            <i data-lucide="log-out" class="h-4 w-4"></i>
-                        </button>
-                    </form>
-                    {% endif %}
-                </div>
-            </div>
-
+<body class="app-shell">
+    <header class="app-header">
+        <div class="header-inner">
+            <a href="{{ url_for('index') }}" class="brand" aria-label="迹页首页">
+                <span class="brand-mark"><i data-lucide="notebook-pen" class="h-5 w-5"></i></span>
+                <span class="brand-name">迹页<span class="brand-dot">.</span></span>
+                <span class="brand-caption">日记与学习</span>
+            </a>
             {% if current_user.is_authenticated %}
-            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <nav class="flex flex-wrap items-center gap-2">
-                    <a class="nav-link" href="{{ url_for('index') }}">
-                        <i data-lucide="layout-dashboard" class="h-4 w-4"></i>
-                        看板
-                    </a>
-                    <a class="nav-link" href="{{ url_for('diaries') }}">
-                        <i data-lucide="book-open-text" class="h-4 w-4"></i>
-                        日记
-                    </a>
-                    <a class="nav-link" href="{{ url_for('study_logs') }}">
-                        <i data-lucide="graduation-cap" class="h-4 w-4"></i>
-                        学习
-                    </a>
-                    <a class="nav-link primary" href="{{ url_for('new_diary') }}">
-                        <i data-lucide="pen-line" class="h-4 w-4"></i>
-                        写日记
-                    </a>
-                    <a class="nav-link primary" href="{{ url_for('new_study_log') }}">
-                        <i data-lucide="timer-reset" class="h-4 w-4"></i>
-                        记学习
-                    </a>
-                </nav>
-
-                <form action="{{ url_for('search') }}" method="get" class="flex w-full max-w-md items-center gap-2 lg:w-80">
-                    <label for="global-search" class="sr-only">搜索</label>
-                    <div class="relative w-full">
-                        <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
-                        <input
-                            id="global-search"
-                            name="q"
-                            value="{{ request.args.get('q', '') }}"
-                            class="field pl-9"
-                            placeholder="搜索关键词、标签、科目"
-                        >
-                    </div>
-                </form>
-            </div>
+            <nav class="main-nav" aria-label="主导航">
+                <a class="nav-link {% if request.endpoint == 'index' %}primary{% endif %}" href="{{ url_for('index') }}"><i data-lucide="layout-dashboard" class="h-4 w-4"></i>总览</a>
+                <a class="nav-link {% if request.endpoint in ['diaries', 'new_diary', 'edit_diary'] %}primary{% endif %}" href="{{ url_for('diaries') }}"><i data-lucide="book-open-text" class="h-4 w-4"></i>日记</a>
+                <a class="nav-link {% if request.endpoint in ['study_logs', 'new_study_log', 'edit_study_log'] %}primary{% endif %}" href="{{ url_for('study_logs') }}"><i data-lucide="graduation-cap" class="h-4 w-4"></i>学习</a>
+            </nav>
             {% endif %}
+            <div class="header-actions">
+                {% if current_user.is_authenticated %}
+                <form action="{{ url_for('search') }}" method="get" class="header-search">
+                    <i data-lucide="search" class="h-4 w-4"></i>
+                    <input name="q" aria-label="搜索记录" value="{{ request.args.get('q', '') }}" placeholder="搜索记录、标签或科目">
+                </form>
+                {% endif %}
+                <button type="button" class="icon-button" data-theme-toggle aria-label="切换主题" title="切换主题"><i data-lucide="moon" class="h-4 w-4"></i></button>
+                {% if current_user.is_authenticated %}
+                <form action="{{ url_for('logout') }}" method="post"><button type="submit" class="icon-button" aria-label="退出登录" title="退出登录"><i data-lucide="log-out" class="h-4 w-4"></i></button></form>
+                {% endif %}
+            </div>
         </div>
     </header>
 
-    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+    <main class="app-main">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             <div class="mb-5 space-y-2">
@@ -128,18 +74,26 @@
 
         {% block content %}{% endblock %}
     </main>
+    <footer class="site-footer"><span>迹页 · 留住日常，看见成长</span><span>你的私人记录空间</span></footer>
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        lucide.createIcons();
-
         const themeToggle = document.querySelector("[data-theme-toggle]");
+        function updateThemeIcon() {
+            if (!themeToggle) return;
+            const isDark = document.documentElement.classList.contains("dark");
+            themeToggle.innerHTML = `<i data-lucide="${isDark ? "sun" : "moon"}" class="h-4 w-4"></i>`;
+            themeToggle.title = isDark ? "切换浅色主题" : "切换深色主题";
+            themeToggle.setAttribute("aria-label", themeToggle.title);
+            lucide.createIcons();
+        }
+        updateThemeIcon();
         if (themeToggle) {
             themeToggle.addEventListener("click", () => {
                 const isDark = document.documentElement.classList.toggle("dark");
                 localStorage.theme = isDark ? "dark" : "light";
-                lucide.createIcons();
+                updateThemeIcon();
             });
         }
     </script>

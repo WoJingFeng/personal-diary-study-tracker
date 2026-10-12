@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}日记列表 - 个人日记与学习追踪{% endblock %}
+{% block title %}日记 · 迹页{% endblock %}
 
 {% block content %}
 <section class="space-y-5">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <h1 class="text-2xl font-semibold">日记</h1>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">按日期、标签和关键词筛选。</p>
+            <p class="eyebrow">JOURNAL / 日常片段</p>
+            <h1 class="page-title">写下生活的细节<span class="accent-period">。</span></h1>
+            <p class="page-description">那些普通的日子，也有值得被记住的瞬间。</p>
         </div>
         <a href="{{ url_for('new_diary') }}" class="btn-primary">
             <i data-lucide="pen-line" class="h-4 w-4"></i>
@@ -16,10 +17,10 @@
     </div>
 
     <form method="get" class="filter-bar">
-        <input name="q" class="field" value="{{ request.args.get('q', '') }}" placeholder="关键词">
-        <input name="tag" class="field" value="{{ request.args.get('tag', '') }}" placeholder="#标签">
-        <input name="start_date" type="date" class="field" value="{{ request.args.get('start_date', '') }}">
-        <input name="end_date" type="date" class="field" value="{{ request.args.get('end_date', '') }}">
+        <input name="q" class="field" aria-label="日记关键词" value="{{ request.args.get('q', '') }}" placeholder="关键词">
+        <input name="tag" class="field" aria-label="日记标签" value="{{ request.args.get('tag', '') }}" placeholder="#标签">
+        <input name="start_date" type="date" class="field" aria-label="日记开始日期" value="{{ request.args.get('start_date', '') }}">
+        <input name="end_date" type="date" class="field" aria-label="日记结束日期" value="{{ request.args.get('end_date', '') }}">
         <button class="btn-secondary justify-center" type="submit">
             <i data-lucide="filter" class="h-4 w-4"></i>
             筛选
@@ -55,7 +56,7 @@
             {% endif %}
         </article>
         {% else %}
-        <div class="empty-state">没有找到匹配的日记。</div>
+        <div class="empty-state">还没有找到相关日记。换个关键词试试。</div>
         {% endfor %}
     </div>
 </section>

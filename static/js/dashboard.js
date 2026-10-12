@@ -8,7 +8,7 @@
     const values = JSON.parse(canvas.dataset.values || "[]");
     const isDark = document.documentElement.classList.contains("dark");
 
-    new Chart(canvas, {
+    const chart = new Chart(canvas, {
         type: "bar",
         data: {
             labels,
@@ -16,11 +16,10 @@
                 {
                     label: "学习时长",
                     data: values,
-                    backgroundColor: isDark ? "rgba(52, 211, 153, 0.75)" : "rgba(47, 111, 94, 0.82)",
-                    borderColor: isDark ? "rgb(52, 211, 153)" : "rgb(47, 111, 94)",
-                    borderWidth: 1,
-                    borderRadius: 6,
-                    maxBarThickness: 42
+                    backgroundColor: isDark ? "#78c6ad" : "#216b60",
+                    borderWidth: 0,
+                    borderRadius: 4,
+                    maxBarThickness: 32
                 }
             ]
         },
@@ -45,20 +44,29 @@
                         display: false
                     },
                     ticks: {
-                        color: isDark ? "#cbd5e1" : "#475569"
+                        color: isDark ? "#a7b9ad" : "#66736d"
                     }
                 },
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: isDark ? "rgba(51, 65, 85, 0.7)" : "rgba(203, 213, 225, 0.8)"
+                        color: isDark ? "#35473c" : "#e7ece8"
                     },
                     ticks: {
                         precision: 0,
-                        color: isDark ? "#cbd5e1" : "#475569"
+                        color: isDark ? "#a7b9ad" : "#66736d"
                     }
                 }
             }
         }
+    });
+
+    document.querySelector("[data-theme-toggle]")?.addEventListener("click", () => {
+        const dark = document.documentElement.classList.contains("dark");
+        chart.data.datasets[0].backgroundColor = dark ? "#78c6ad" : "#216b60";
+        chart.options.scales.x.ticks.color = dark ? "#a7b9ad" : "#66736d";
+        chart.options.scales.y.ticks.color = dark ? "#a7b9ad" : "#66736d";
+        chart.options.scales.y.grid.color = dark ? "#35473c" : "#e7ece8";
+        chart.update();
     });
 })();

@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}搜索 - 个人日记与学习追踪{% endblock %}
+{% block title %}搜索 · 迹页{% endblock %}
 
 {% block content %}
 <section class="space-y-6">
     <div>
-        <h1 class="text-2xl font-semibold">搜索</h1>
-        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">当前关键词：{{ q or "无" }}</p>
+        <p class="eyebrow">SEARCH / 查找记录</p>
+        <h1 class="page-title">找到曾经写下的<span class="accent-period">。</span></h1>
+        <p class="page-description">{% if q %}“{{ q }}” 的相关记录{% else %}搜索日记、标签和学习内容。{% endif %}</p>
     </div>
 
     <form method="get" class="flex flex-col gap-2 sm:flex-row">
@@ -17,7 +18,7 @@
         </button>
     </form>
 
-    <div class="grid gap-6 lg:grid-cols-2">
+    <div class="recent-grid">
         <section>
             <h2 class="mb-3 text-base font-semibold">日记结果</h2>
             <div class="space-y-3">

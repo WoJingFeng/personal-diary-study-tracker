@@ -1,64 +1,43 @@
 {% extends "base.html" %}
 
-{% block title %}首页看板 - 个人日记与学习追踪{% endblock %}
+{% block title %}总览 · 迹页{% endblock %}
 
 {% block content %}
-<section class="space-y-6">
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+<section>
+    <div class="dashboard-intro">
         <div>
-            <h1 class="text-2xl font-semibold tracking-normal">首页看板</h1>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">最近 7 天的记录和学习节奏。</p>
+            <p class="eyebrow">个人空间 / 今天</p>
+            <h1>把日子，过成看得见的成长<span class="accent-period">。</span></h1>
+            <p class="intro-copy">写下此刻，积累每一次投入。这里收藏你的日常，也记录你向前的轨迹。</p>
         </div>
-        <div class="flex flex-wrap gap-2">
+        <div class="intro-actions">
             <a href="{{ url_for('new_diary') }}" class="btn-primary">
                 <i data-lucide="pen-line" class="h-4 w-4"></i>
-                写日记
+                写一篇日记
             </a>
             <a href="{{ url_for('new_study_log') }}" class="btn-secondary">
-                <i data-lucide="timer-reset" class="h-4 w-4"></i>
-                记学习
+                <i data-lucide="plus" class="h-4 w-4"></i>
+                记录学习
             </a>
         </div>
     </div>
 
-    <div class="grid gap-4 md:grid-cols-3">
+    <div class="metrics-row">
         <article class="metric-card">
-            <div class="metric-icon bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                <i data-lucide="book-marked" class="h-5 w-5"></i>
-            </div>
-            <div>
-                <p class="metric-label">最近 7 天日记</p>
-                <p class="metric-value">{{ diary_count_7d }}</p>
-            </div>
+            <span class="metric-kicker">01 / 写下的日常</span><p class="metric-label">近 7 天日记</p><p class="metric-value">{{ diary_count_7d }}</p><span class="metric-foot">每一篇都值得保存</span>
         </article>
-
         <article class="metric-card">
-            <div class="metric-icon bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                <i data-lucide="clock-3" class="h-5 w-5"></i>
-            </div>
-            <div>
-                <p class="metric-label">累计学习时长</p>
-                <p class="metric-value">{{ total_study_minutes | minutes_label }}</p>
-            </div>
+            <span class="metric-kicker">02 / 投入的时间</span><p class="metric-label">累计学习</p><p class="metric-value">{{ total_study_minutes | minutes_label }}</p><span class="metric-foot">时间会留下痕迹</span>
         </article>
-
         <article class="metric-card">
-            <div class="metric-icon bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300">
-                <i data-lucide="badge-check" class="h-5 w-5"></i>
-            </div>
-            <div>
-                <p class="metric-label">已完成学习记录</p>
-                <p class="metric-value">{{ completed_count }}</p>
-            </div>
+            <span class="metric-kicker">03 / 完成的目标</span><p class="metric-label">已完成记录</p><p class="metric-value">{{ completed_count }}</p><span class="metric-foot">为持续行动喝彩</span>
         </article>
     </div>
 
-    <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div class="mb-4 flex items-center justify-between gap-3">
-            <h2 class="text-base font-semibold">最近一周学习时长</h2>
-            <span class="text-xs text-slate-500 dark:text-slate-400">分钟</span>
-        </div>
-        <div class="h-72">
+    <div class="dashboard-grid">
+    <section class="chart-panel">
+        <div class="section-heading"><div><span class="section-index">学习节奏 · LAST 7 DAYS</span><h2>这一周的投入</h2></div><span class="unit-label">单位 / 分钟</span></div>
+        <div class="chart-wrap">
             <canvas
                 id="weeklyStudyChart"
                 data-labels='{{ chart_labels | tojson }}'
@@ -66,14 +45,22 @@
             ></canvas>
         </div>
     </section>
+    <section class="quick-panel">
+        <span class="section-index">QUICK ENTRY / 即刻开始</span>
+        <h2>今天，想留下什么？</h2>
+        <p>一段心情，一次学习。简短的记录也足够珍贵。</p>
+        <a class="quick-link" href="{{ url_for('new_diary') }}"><span class="quick-icon diary-icon"><i data-lucide="pen-line" class="h-5 w-5"></i></span><span><strong>写下今天</strong><small>日记与心情</small></span><i data-lucide="arrow-up-right" class="quick-arrow h-5 w-5"></i></a>
+        <a class="quick-link" href="{{ url_for('new_study_log') }}"><span class="quick-icon study-icon"><i data-lucide="timer" class="h-5 w-5"></i></span><span><strong>记录学习</strong><small>时间与收获</small></span><i data-lucide="arrow-up-right" class="quick-arrow h-5 w-5"></i></a>
+    </section>
+    </div>
 
-    <div class="grid gap-6 lg:grid-cols-2">
+    <div class="recent-grid">
         <section>
-            <div class="mb-3 flex items-center justify-between">
-                <h2 class="text-base font-semibold">最近日记</h2>
-                <a class="text-sm font-medium text-leaf hover:underline dark:text-emerald-300" href="{{ url_for('diaries') }}">查看全部</a>
+            <div class="section-heading">
+                <div><span class="section-index">JOURNAL / 日常片段</span><h2>最近日记</h2></div>
+                <a class="section-more" href="{{ url_for('diaries') }}">全部日记 <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
             </div>
-            <div class="space-y-3">
+            <div class="recent-list">
                 {% for diary in recent_diaries %}
                 <article class="list-card">
                     <div class="flex items-start justify-between gap-3">
@@ -95,17 +82,17 @@
                     {% endif %}
                 </article>
                 {% else %}
-                <div class="empty-state">还没有日记记录。</div>
+                <div class="empty-state">今天的第一笔记录，等你写下。</div>
                 {% endfor %}
             </div>
         </section>
 
         <section>
-            <div class="mb-3 flex items-center justify-between">
-                <h2 class="text-base font-semibold">最近学习</h2>
-                <a class="text-sm font-medium text-leaf hover:underline dark:text-emerald-300" href="{{ url_for('study_logs') }}">查看全部</a>
+            <div class="section-heading">
+                <div><span class="section-index">LEARNING / 学习进度</span><h2>最近学习</h2></div>
+                <a class="section-more" href="{{ url_for('study_logs') }}">全部学习 <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
             </div>
-            <div class="space-y-3">
+            <div class="recent-list">
                 {% for log in recent_study_logs %}
                 <article class="list-card">
                     <div class="flex items-start justify-between gap-3">
@@ -128,7 +115,7 @@
                     <p class="mt-3 line-clamp-3 whitespace-pre-line text-sm text-slate-600 dark:text-slate-300">{{ log.summary }}</p>
                 </article>
                 {% else %}
-                <div class="empty-state">还没有学习记录。</div>
+                <div class="empty-state">从 10 分钟开始，也算在路上。</div>
                 {% endfor %}
             </div>
         </section>

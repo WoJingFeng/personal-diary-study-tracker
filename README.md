@@ -1,6 +1,10 @@
-# 个人日记与学习追踪网站
+# 迹页 · 日记与学习
 
-一个适合个人使用的 Flask + SQLite 小网站，包含日记、学习记录、首页统计、图表、搜索筛选和简单单用户登录。
+一个适合个人使用的日记与学习追踪网站，包含日记、学习记录、统计图表、搜索筛选和简单单用户登录。
+
+公开演示地址：https://wojingfeng.github.io/personal-diary-study-tracker/
+
+公开演示由 GitHub Pages 托管，数据保存在当前浏览器的 localStorage 中。它可以直接使用，但不同设备不会同步数据；Flask + SQLite 后端版尚未在线部署。
 
 ## 功能
 
@@ -9,7 +13,7 @@
 - 首页看板：最近 7 天日记数量、累计学习时长、已完成学习记录、最近一周学习时长柱状图。
 - 搜索筛选：按关键词、标签、科目、日期范围筛选。
 - 简单登录：启动时自动创建一个默认用户。
-- 部署友好：SQLite 自动建表，Render 可用持久磁盘保存数据库。
+- 后端版：Flask + SQLite 自动建表，可按需部署到带持久存储的平台。
 
 ## 项目结构
 
@@ -38,14 +42,15 @@ personal-diary-study-tracker/
 │  └─ search.html
 └─ static/
    ├─ css/
-   │  └─ app.css
+   │  ├─ app.css
+   │  └─ refresh.css
    └─ js/
       └─ dashboard.js
 ```
 
 ## 先看成品界面
 
-建议先双击打开 `demo.html`。这是可交互演示页，不需要安装 Python 依赖，可以新增、编辑、删除日记和学习记录，图表也会跟着变化。演示数据保存在当前浏览器的 localStorage 里。
+直接访问上方公开演示地址，或双击打开 `demo.html`。演示版不需要安装 Python 依赖，可以新增、编辑、删除日记和学习记录，图表也会跟着变化。演示数据保存在当前浏览器的 localStorage 中。
 
 也可以打开 `preview.html`。这是静态视觉预览页，只用于快速看整体界面。
 
@@ -152,11 +157,11 @@ New > Blueprint
 
 3. 连接你的 GitHub 仓库。
 
-4. Render 会读取 `render.yaml`，创建 Web Service 和持久磁盘。
+4. Render 会读取 `render.yaml`，创建免费 Web Service。
 
 5. 在创建过程中设置 `APP_PASSWORD`。这是登录密码，不要留空。
 
-6. 部署完成后，打开 Render 给你的域名。
+6. 部署完成后，打开 Render 给你的域名。免费服务不带持久磁盘，因此当前配置只适合试运行，重启或重新部署后 SQLite 数据可能丢失。
 
 `render.yaml` 当前配置：
 
@@ -165,14 +170,10 @@ services:
   - type: web
     name: personal-diary-study-tracker
     runtime: python
-    plan: 0.5c-512mb
+    plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     healthCheckPath: /health
-    disk:
-      name: diary-study-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: SECRET_KEY
         generateValue: true
@@ -180,8 +181,6 @@ services:
         value: admin
       - key: APP_PASSWORD
         sync: false
-      - key: DATABASE_URL
-        value: sqlite:////var/data/app.db
 ```
 
 ### 方式二：手动创建 Web Service
@@ -211,7 +210,7 @@ APP_PASSWORD = 你的登录密码
 DATABASE_URL = sqlite:////var/data/app.db
 ```
 
-5. 添加持久磁盘：
+5. 如果希望数据长期保存，需要升级到支持持久磁盘的实例，并添加持久磁盘：
 
 ```text
 Name: diary-study-data
@@ -225,7 +224,7 @@ Size: 1 GB
 
 SQLite 是文件数据库。部署到 Render 时，如果数据库文件放在普通应用目录，服务重启或重新部署后可能丢失。
 
-所以线上使用 SQLite 时，建议：
+所以线上长期使用 SQLite 时，建议升级到支持持久磁盘的实例，设置：
 
 ```text
 DATABASE_URL=sqlite:////var/data/app.db

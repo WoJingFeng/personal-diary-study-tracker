@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>交互演示 - 个人日记与学习追踪</title>
+    <title>迹页 · 日记与学习</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,159 +11,91 @@
             theme: {
                 extend: {
                     colors: {
-                        leaf: "#2f6f5e",
-                        paper: "#f7f4ef"
+                        leaf: "#216b60",
+                        paper: "#f6f7f5"
                     }
                 }
             }
         };
     </script>
     <link rel="stylesheet" href="static/css/app.css">
+    <link rel="stylesheet" href="static/css/refresh.css">
 </head>
-<body class="min-h-screen bg-paper text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
-    <header class="border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
-        <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <a href="#dashboard" class="flex items-center gap-3" data-tab-link="dashboard">
-                    <span class="grid h-10 w-10 place-items-center rounded-lg bg-leaf text-white">
-                        <i data-lucide="notebook-pen" class="h-5 w-5"></i>
-                    </span>
-                    <span>
-                        <span class="block text-base font-semibold">日记与学习追踪</span>
-                        <span class="block text-xs text-slate-500 dark:text-slate-400">Interactive Demo</span>
-                    </span>
-                </a>
-
-                <div class="flex items-center gap-2">
-                    <button class="btn-secondary" type="button" id="resetDemo">
-                        <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
-                        重置演示
-                    </button>
-                    <button
-                        type="button"
-                        class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-                        id="themeToggle"
-                        aria-label="切换主题"
-                        title="切换主题"
-                    >
-                        <i data-lucide="moon" class="h-4 w-4"></i>
-                    </button>
+<body class="app-shell">
+    <header class="app-header">
+        <div class="header-inner">
+            <a href="#dashboard" class="brand" data-tab-link="dashboard" aria-label="迹页首页">
+                <span class="brand-mark"><i data-lucide="notebook-pen" class="h-5 w-5"></i></span>
+                <span class="brand-name">迹页<span class="brand-dot">.</span></span>
+                <span class="brand-caption">日记与学习</span>
+            </a>
+            <nav class="main-nav" aria-label="主导航">
+                <button class="nav-link" type="button" data-tab-button="dashboard"><i data-lucide="layout-dashboard" class="h-4 w-4"></i>总览</button>
+                <button class="nav-link" type="button" data-tab-button="diaries"><i data-lucide="book-open-text" class="h-4 w-4"></i>日记</button>
+                <button class="nav-link" type="button" data-tab-button="study"><i data-lucide="graduation-cap" class="h-4 w-4"></i>学习</button>
+            </nav>
+            <div class="header-actions">
+                <div class="header-search">
+                    <i data-lucide="search" class="h-4 w-4"></i>
+                    <input id="globalSearch" aria-label="搜索记录" placeholder="搜索记录、标签或科目">
                 </div>
-            </div>
-
-            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <nav class="flex flex-wrap items-center gap-2">
-                    <button class="nav-link" type="button" data-tab-button="dashboard">
-                        <i data-lucide="layout-dashboard" class="h-4 w-4"></i>
-                        看板
-                    </button>
-                    <button class="nav-link" type="button" data-tab-button="diaries">
-                        <i data-lucide="book-open-text" class="h-4 w-4"></i>
-                        日记
-                    </button>
-                    <button class="nav-link" type="button" data-tab-button="study">
-                        <i data-lucide="graduation-cap" class="h-4 w-4"></i>
-                        学习
-                    </button>
-                </nav>
-
-                <div class="relative w-full max-w-md lg:w-80">
-                    <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
-                    <input id="globalSearch" class="field pl-9" placeholder="搜索关键词、标签、科目">
-                </div>
+                <button class="icon-button" type="button" id="themeToggle" aria-label="切换主题" title="切换主题"><i data-lucide="moon" class="h-4 w-4"></i></button>
+                <button class="icon-button" type="button" id="resetDemo" aria-label="重置演示数据" title="重置演示数据"><i data-lucide="rotate-ccw" class="h-4 w-4"></i></button>
             </div>
         </div>
     </header>
 
-    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <section id="dashboardView" class="space-y-6" data-view="dashboard">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <main class="app-main">
+        <section id="dashboardView" data-view="dashboard">
+            <div class="dashboard-intro">
                 <div>
-                    <h1 class="text-2xl font-semibold tracking-normal">首页看板</h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">这是可直接打开的浏览器演示版，数据保存在本机 localStorage。</p>
+                    <p class="eyebrow" id="todayDate">个人空间 / 今天</p>
+                    <h1>把日子，过成看得见的成长<span class="accent-period">。</span></h1>
+                    <p class="intro-copy">写下此刻，积累每一次投入。这里收藏你的日常，也记录你向前的轨迹。</p>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <button class="btn-primary" type="button" data-tab-button="diaries" data-focus="diaryTitle">
-                        <i data-lucide="pen-line" class="h-4 w-4"></i>
-                        写日记
-                    </button>
-                    <button class="btn-secondary" type="button" data-tab-button="study" data-focus="studySubject">
-                        <i data-lucide="timer-reset" class="h-4 w-4"></i>
-                        记学习
-                    </button>
+                <div class="intro-actions">
+                    <button class="btn-primary" type="button" data-tab-button="diaries" data-focus="diaryTitle"><i data-lucide="pen-line" class="h-4 w-4"></i>写一篇日记</button>
+                    <button class="btn-secondary" type="button" data-tab-button="study" data-focus="studySubject"><i data-lucide="plus" class="h-4 w-4"></i>记录学习</button>
                 </div>
             </div>
 
-            <div class="grid gap-4 md:grid-cols-3">
-                <article class="metric-card">
-                    <div class="metric-icon bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                        <i data-lucide="book-marked" class="h-5 w-5"></i>
-                    </div>
-                    <div>
-                        <p class="metric-label">最近 7 天日记</p>
-                        <p class="metric-value" id="diaryCount7d">0</p>
-                    </div>
-                </article>
-
-                <article class="metric-card">
-                    <div class="metric-icon bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                        <i data-lucide="clock-3" class="h-5 w-5"></i>
-                    </div>
-                    <div>
-                        <p class="metric-label">累计学习时长</p>
-                        <p class="metric-value" id="totalStudyMinutes">0 分钟</p>
-                    </div>
-                </article>
-
-                <article class="metric-card">
-                    <div class="metric-icon bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300">
-                        <i data-lucide="badge-check" class="h-5 w-5"></i>
-                    </div>
-                    <div>
-                        <p class="metric-label">已完成学习记录</p>
-                        <p class="metric-value" id="completedCount">0</p>
-                    </div>
-                </article>
+            <div class="metrics-row">
+                <article class="metric-card"><span class="metric-kicker">01 / 写下的日常</span><p class="metric-label">近 7 天日记</p><p class="metric-value" id="diaryCount7d">0</p><span class="metric-foot">每一篇都值得保存</span></article>
+                <article class="metric-card"><span class="metric-kicker">02 / 投入的时间</span><p class="metric-label">累计学习</p><p class="metric-value" id="totalStudyMinutes">0 分钟</p><span class="metric-foot">时间会留下痕迹</span></article>
+                <article class="metric-card"><span class="metric-kicker">03 / 完成的目标</span><p class="metric-label">已完成记录</p><p class="metric-value" id="completedCount">0</p><span class="metric-foot">为持续行动喝彩</span></article>
             </div>
 
-            <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <div class="mb-4 flex items-center justify-between gap-3">
-                    <h2 class="text-base font-semibold">最近一周学习时长</h2>
-                    <span class="text-xs text-slate-500 dark:text-slate-400">分钟</span>
-                </div>
-                <div class="h-72">
-                    <canvas id="demoChart"></canvas>
-                </div>
-            </section>
-
-            <div class="grid gap-6 lg:grid-cols-2">
-                <section>
-                    <div class="mb-3 flex items-center justify-between">
-                        <h2 class="text-base font-semibold">最近日记</h2>
-                        <button class="text-sm font-medium text-leaf hover:underline dark:text-emerald-300" type="button" data-tab-button="diaries">查看全部</button>
-                    </div>
-                    <div id="recentDiaries" class="space-y-3"></div>
+            <div class="dashboard-grid">
+                <section class="chart-panel">
+                    <div class="section-heading"><div><span class="section-index">学习节奏 · LAST 7 DAYS</span><h2>这一周的投入</h2></div><span class="unit-label">单位 / 分钟</span></div>
+                    <div class="chart-wrap"><canvas id="demoChart" aria-label="最近七天学习时长柱状图"></canvas></div>
                 </section>
-
-                <section>
-                    <div class="mb-3 flex items-center justify-between">
-                        <h2 class="text-base font-semibold">最近学习</h2>
-                        <button class="text-sm font-medium text-leaf hover:underline dark:text-emerald-300" type="button" data-tab-button="study">查看全部</button>
-                    </div>
-                    <div id="recentStudyLogs" class="space-y-3"></div>
+                <section class="quick-panel">
+                    <span class="section-index">QUICK ENTRY / 即刻开始</span>
+                    <h2>今天，想留下什么？</h2>
+                    <p>一段心情，一次学习。简短的记录也足够珍贵。</p>
+                    <button type="button" class="quick-link" data-tab-button="diaries" data-focus="diaryTitle"><span class="quick-icon diary-icon"><i data-lucide="pen-line" class="h-5 w-5"></i></span><span><strong>写下今天</strong><small>日记与心情</small></span><i data-lucide="arrow-up-right" class="quick-arrow h-5 w-5"></i></button>
+                    <button type="button" class="quick-link" data-tab-button="study" data-focus="studySubject"><span class="quick-icon study-icon"><i data-lucide="timer" class="h-5 w-5"></i></span><span><strong>记录学习</strong><small>时间与收获</small></span><i data-lucide="arrow-up-right" class="quick-arrow h-5 w-5"></i></button>
                 </section>
+            </div>
+
+            <div class="recent-grid">
+                <section><div class="section-heading"><div><span class="section-index">JOURNAL / 日常片段</span><h2>最近日记</h2></div><button class="section-more" type="button" data-tab-button="diaries">全部日记 <i data-lucide="arrow-right" class="h-4 w-4"></i></button></div><div id="recentDiaries" class="recent-list"></div></section>
+                <section><div class="section-heading"><div><span class="section-index">LEARNING / 学习进度</span><h2>最近学习</h2></div><button class="section-more" type="button" data-tab-button="study">全部学习 <i data-lucide="arrow-right" class="h-4 w-4"></i></button></div><div id="recentStudyLogs" class="recent-list"></div></section>
             </div>
         </section>
 
         <section id="diariesView" class="hidden space-y-5" data-view="diaries">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <h1 class="text-2xl font-semibold">日记</h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">新增、编辑、删除，并按日期、标签和关键词筛选。</p>
+                    <p class="eyebrow">JOURNAL / 日常片段</p>
+                    <h1 class="page-title">写下生活的细节<span class="accent-period">。</span></h1>
+                    <p class="page-description">那些普通的日子，也有值得被记住的瞬间。</p>
                 </div>
             </div>
 
-            <form id="diaryForm" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <form id="diaryForm" class="form-surface">
+                <div class="form-heading"><span class="section-index">NEW ENTRY</span><h2>今天的日记</h2></div>
                 <input type="hidden" id="diaryId">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
@@ -184,7 +116,7 @@
                     <textarea id="diaryBody" rows="8" class="field resize-y" required></textarea>
                 </div>
                 <div class="mt-5 flex flex-wrap justify-end gap-2">
-                    <button class="btn-secondary" type="button" id="clearDiaryForm">清空</button>
+                    <button class="btn-secondary" type="button" id="clearDiaryForm">清空内容</button>
                     <button class="btn-primary" type="submit">
                         <i data-lucide="save" class="h-4 w-4"></i>
                         保存日记
@@ -193,10 +125,10 @@
             </form>
 
             <form id="diaryFilters" class="filter-bar">
-                <input id="diaryQuery" class="field" placeholder="关键词">
-                <input id="diaryTag" class="field" placeholder="#标签">
-                <input id="diaryStart" type="date" class="field">
-                <input id="diaryEnd" type="date" class="field">
+                <input id="diaryQuery" class="field" aria-label="日记关键词" placeholder="关键词">
+                <input id="diaryTag" class="field" aria-label="日记标签" placeholder="#标签">
+                <input id="diaryStart" type="date" class="field" aria-label="日记开始日期">
+                <input id="diaryEnd" type="date" class="field" aria-label="日记结束日期">
                 <button class="btn-secondary justify-center" type="submit">
                     <i data-lucide="filter" class="h-4 w-4"></i>
                     筛选
@@ -209,12 +141,14 @@
         <section id="studyView" class="hidden space-y-5" data-view="study">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <h1 class="text-2xl font-semibold">学习记录</h1>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">记录科目、时长、内容总结和完成度。</p>
+                    <p class="eyebrow">LEARNING / 学习进度</p>
+                    <h1 class="page-title">把投入变成轨迹<span class="accent-period">。</span></h1>
+                    <p class="page-description">记录学过的内容，看到自己的每一步。</p>
                 </div>
             </div>
 
-            <form id="studyForm" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <form id="studyForm" class="form-surface">
+                <div class="form-heading"><span class="section-index">NEW SESSION</span><h2>新增学习记录</h2></div>
                 <input type="hidden" id="studyId">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
@@ -243,7 +177,7 @@
                     <textarea id="studySummary" rows="8" class="field resize-y" required></textarea>
                 </div>
                 <div class="mt-5 flex flex-wrap justify-end gap-2">
-                    <button class="btn-secondary" type="button" id="clearStudyForm">清空</button>
+                    <button class="btn-secondary" type="button" id="clearStudyForm">清空内容</button>
                     <button class="btn-primary" type="submit">
                         <i data-lucide="save" class="h-4 w-4"></i>
                         保存学习记录
@@ -252,10 +186,10 @@
             </form>
 
             <form id="studyFilters" class="filter-bar">
-                <input id="studyQuery" class="field" placeholder="关键词">
-                <input id="studySubjectFilter" class="field" placeholder="科目">
-                <input id="studyStart" type="date" class="field">
-                <input id="studyEnd" type="date" class="field">
+                <input id="studyQuery" class="field" aria-label="学习关键词" placeholder="关键词">
+                <input id="studySubjectFilter" class="field" aria-label="学习科目" placeholder="科目">
+                <input id="studyStart" type="date" class="field" aria-label="学习开始日期">
+                <input id="studyEnd" type="date" class="field" aria-label="学习结束日期">
                 <button class="btn-secondary justify-center" type="submit">
                     <i data-lucide="filter" class="h-4 w-4"></i>
                     筛选
@@ -264,7 +198,12 @@
 
             <div id="studyList" class="space-y-3"></div>
         </section>
+        <section id="searchView" class="hidden space-y-6" data-view="search">
+            <div><p class="eyebrow">SEARCH / 查找记录</p><h1 class="page-title">找到曾经写下的<span class="accent-period">。</span></h1><p class="page-description" id="searchSummary">输入关键词，查找日记和学习记录。</p></div>
+            <div class="recent-grid"><section><div class="section-heading"><div><span class="section-index">JOURNAL</span><h2>日记</h2></div></div><div id="searchDiaries" class="recent-list"></div></section><section><div class="section-heading"><div><span class="section-index">LEARNING</span><h2>学习</h2></div></div><div id="searchStudy" class="recent-list"></div></section></div>
+        </section>
     </main>
+    <footer class="site-footer"><span>迹页 · 留住日常，看见成长</span><span>演示数据仅保存在当前浏览器</span></footer>
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -276,6 +215,7 @@
 
         const today = new Date();
         const isoToday = toISODate(today);
+        document.getElementById("todayDate").textContent = `个人空间 / ${new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", day: "numeric", weekday: "long" }).format(today)}`;
 
         document.getElementById("diaryDate").value = isoToday;
         document.getElementById("studyDate").value = isoToday;
@@ -297,6 +237,7 @@
         document.getElementById("themeToggle").addEventListener("click", () => {
             const isDark = document.documentElement.classList.toggle("dark");
             localStorage.theme = isDark ? "dark" : "light";
+            updateThemeIcon();
             renderAll();
         });
 
@@ -312,9 +253,9 @@
         });
 
         document.getElementById("globalSearch").addEventListener("input", (event) => {
-            document.getElementById("diaryQuery").value = event.target.value;
-            document.getElementById("studyQuery").value = event.target.value;
-            renderLists();
+            if (event.target.value.trim()) showTab("search");
+            else if (activeTab === "search") showTab("dashboard");
+            else renderSearch();
         });
 
         document.getElementById("diaryForm").addEventListener("submit", (event) => {
@@ -404,16 +345,23 @@
             renderAll();
         };
 
-        if (
-            localStorage.theme === "dark" ||
-            (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ) {
+        if (localStorage.theme === "dark") {
             document.documentElement.classList.add("dark");
         }
 
+        updateThemeIcon();
         renderAll();
 
+        function updateThemeIcon() {
+            const button = document.getElementById("themeToggle");
+            const isDark = document.documentElement.classList.contains("dark");
+            button.innerHTML = `<i data-lucide="${isDark ? "sun" : "moon"}" class="h-4 w-4"></i>`;
+            button.title = isDark ? "切换浅色主题" : "切换深色主题";
+            button.setAttribute("aria-label", button.title);
+        }
+
         function showTab(tab) {
+            const changed = activeTab !== tab;
             activeTab = tab;
             document.querySelectorAll("[data-view]").forEach((view) => {
                 view.classList.toggle("hidden", view.dataset.view !== tab);
@@ -423,11 +371,13 @@
                 button.classList.toggle("primary", selected);
             });
             renderAll();
+            if (changed) window.scrollTo({ top: 0, behavior: "instant" });
         }
 
         function renderAll() {
             renderDashboard();
             renderLists();
+            renderSearch();
             lucide.createIcons();
         }
 
@@ -459,11 +409,20 @@
 
             document.getElementById("recentDiaries").innerHTML = recentDiaries.length
                 ? recentDiaries.map(diaryCard).join("")
-                : `<div class="empty-state">还没有日记记录。</div>`;
+                : `<div class="empty-state">今天的第一笔记录，等你写下。</div>`;
 
             document.getElementById("recentStudyLogs").innerHTML = recentStudy.length
                 ? recentStudy.map(studyCard).join("")
-                : `<div class="empty-state">还没有学习记录。</div>`;
+                : `<div class="empty-state">从 10 分钟开始，也算在路上。</div>`;
+        }
+
+        function renderSearch() {
+            const query = document.getElementById("globalSearch").value.trim().toLowerCase();
+            const diaries = sortByDate(state.diaries).filter((item) => `${item.title} ${item.body} ${item.tags}`.toLowerCase().includes(query));
+            const study = sortByDate(state.studyLogs).filter((item) => `${item.subject} ${item.summary}`.toLowerCase().includes(query));
+            document.getElementById("searchSummary").textContent = query ? `“${query}” 的相关记录` : "输入关键词，查找日记和学习记录。";
+            document.getElementById("searchDiaries").innerHTML = diaries.length ? diaries.map(diaryCard).join("") : `<div class="empty-state">没有找到相关日记。</div>`;
+            document.getElementById("searchStudy").innerHTML = study.length ? study.map(studyCard).join("") : `<div class="empty-state">没有找到相关学习记录。</div>`;
         }
 
         function renderLists() {
@@ -515,11 +474,10 @@
                     datasets: [{
                         label: "学习时长",
                         data: values,
-                        backgroundColor: isDark ? "rgba(52, 211, 153, 0.75)" : "rgba(47, 111, 94, 0.82)",
-                        borderColor: isDark ? "rgb(52, 211, 153)" : "rgb(47, 111, 94)",
-                        borderWidth: 1,
-                        borderRadius: 6,
-                        maxBarThickness: 42
+                        backgroundColor: isDark ? "#78c6ad" : "#216b60",
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        maxBarThickness: 32
                     }]
                 },
                 options: {
@@ -536,14 +494,14 @@
                     scales: {
                         x: {
                             grid: { display: false },
-                            ticks: { color: isDark ? "#cbd5e1" : "#475569" }
+                            ticks: { color: isDark ? "#a7b9ad" : "#66736d" }
                         },
                         y: {
                             beginAtZero: true,
-                            grid: { color: isDark ? "rgba(51, 65, 85, 0.7)" : "rgba(203, 213, 225, 0.8)" },
+                            grid: { color: isDark ? "#35473c" : "#e7ece8" },
                             ticks: {
                                 precision: 0,
-                                color: isDark ? "#cbd5e1" : "#475569"
+                                color: isDark ? "#a7b9ad" : "#66736d"
                             }
                         }
                     }
@@ -627,25 +585,25 @@
                     {
                         id: "d1",
                         entryDate: shiftDate(0),
-                        title: "把 Flask 项目跑通",
-                        body: "今天把日记和学习追踪的主流程理清楚了。界面不需要复杂，但要足够顺手，能每天打开就记录。",
-                        tags: "#专注 #开心",
+                        title: "把今天留给自己一点",
+                        body: "早上出门时天气很好，给自己留了半小时安静读书。事情仍然很多，但今天的节奏由我来决定。",
+                        tags: "#平静 #充实",
                         updatedAt: Date.now()
                     },
                     {
                         id: "d2",
                         entryDate: shiftDate(-1),
-                        title: "整理英语复盘",
-                        body: "背单词比想象中慢，不过复习曲线开始稳定了。明天继续拆小块。",
-                        tags: "#平静",
+                        title: "慢一点，也在向前",
+                        body: "有些目标不需要一天完成。今天的英语练习只做了一小段，但认真听懂了那些原本模糊的句子。",
+                        tags: "#专注",
                         updatedAt: Date.now() - 1
                     },
                     {
                         id: "d3",
                         entryDate: shiftDate(-4),
-                        title: "周计划微调",
-                        body: "把目标从“每天学很多”改成“每天至少完成一个明确的小任务”。感觉压力小了很多。",
-                        tags: "#复盘 #清醒",
+                        title: "给这一周一个方向",
+                        body: "把大目标拆成每天能完成的一件事。这样回头看时，前进的轨迹就清晰了。",
+                        tags: "#复盘 #期待",
                         updatedAt: Date.now() - 2
                     }
                 ],
@@ -657,7 +615,7 @@
                         minutes: 90,
                         completion: 85,
                         completed: true,
-                        summary: "复习 SQLAlchemy 模型关系，完成 Flask 登录流程梳理。",
+                        summary: "整理了装饰器与生成器的笔记，用一个小练习把知识点串了起来。",
                         updatedAt: Date.now()
                     },
                     {
@@ -677,7 +635,7 @@
                         minutes: 120,
                         completion: 100,
                         completed: true,
-                        summary: "写完日记 CRUD 的路由草稿。",
+                        summary: "做完一组基础练习，回看了上周标记的疑问。",
                         updatedAt: Date.now() - 2
                     },
                     {
